@@ -1,52 +1,28 @@
-from datetime import date, datetime
+from __future__ import annotations
+
+from datetime import date
+from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Uuid, UniqueConstraint, func
+from sqlalchemy import Boolean, Date, ForeignKey, Text, Uuid, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
+if TYPE_CHECKING:
+    from app.models.teacher import Teacher
+
 
 class TeacherDailyStatus(Base):
     __tablename__ = "teacher_daily_status"
-
     __table_args__ = (
-        UniqueConstraint(
-            "teacher_id",
-            "status_date",
-            name="uq_teacher_daily_status",
-        ),
+        UniqueConstraint("teacher_id", "status_date", name="uq_teacher_daily_status_date"),
     )
 
-    teacher_daily_status_id: Mapped[UUID] = mapped_column(
-        Uuid,
-        primary_key=True,
-        server_default=func.gen_random_uuid(),
-    )
+    teacher_daily_status_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    teacher_id: Mapped[UUID] = mapped_column(ForeignKey("teachers.teacher_id"), nullable=False)
+    status_date: Mapped[date] = mapped_column(Date, nullable=False)
+    is_available: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default="true")
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    teacher_id: Mapped[UUID] = mapped_column(
-        ForeignKey("teachers.teacher_id"),
-        nullable=False,
-    )
-
-    status_date: Mapped[date] = mapped_column(
-        Date,
-        nullable=False,
-    )
-
-    is_available: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-        default=True,
-    )
-
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False,
-    )
-
-    teacher: Mapped["Teacher"] = relationship(
-        back_populates="daily_status",
-    )
+    teacher: Mapped["Teacher"] = relationship(back_populates="daily_statuses")
