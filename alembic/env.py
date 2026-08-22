@@ -5,6 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 from app.database import Base
+import app.models # it is just short way of writing from app import models , i mean it saves exactly 0.07 sec 
 
 from app.core.config import settings
 
