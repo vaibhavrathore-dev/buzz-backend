@@ -26,7 +26,7 @@ class User(Base):
     )
 
     email: Mapped[str] = mapped_column(
-        String(255),
+        String(255),    
         unique=True,
         nullable=False,
     )
@@ -78,4 +78,8 @@ class User(Base):
     teacher: Mapped["Teacher | None"] = relationship(
         back_populates="user",
         uselist=False,
+    )
+
+    notifications: Mapped[list["Notification"]] = relationship(
+    back_populates="user"
     )

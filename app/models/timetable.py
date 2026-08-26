@@ -57,9 +57,9 @@ class Timetable(Base):
     )
 
     subject_teacher: Mapped["SubjectTeacher"] = relationship(
-        back_populates="timetable",
+        back_populates="timetables",
     )
 
     lecture_slot: Mapped["LectureSlot"] = relationship(
-        back_populates="timetable",
+        back_populates="timetables",
     )
