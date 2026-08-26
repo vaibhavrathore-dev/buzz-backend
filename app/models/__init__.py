@@ -16,6 +16,7 @@ from app.models.notification import Notification
 from app.models.bus import Bus
 from app.models.teacher_daily_status import TeacherDailyStatus
 from app.models.document import Document
+from app.models.otp_verification import Otpverification
 
 __all__ = [
     "User",
@@ -36,4 +37,5 @@ __all__ = [
     "Bus",
     "TeacherDailyStatus",
     "Document",
+    "Otpverification"
 ]
