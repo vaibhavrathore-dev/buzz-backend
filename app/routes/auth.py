@@ -1,11 +1,12 @@
 from fastapi import FastAPI , Depends , HTTPException
-from app.schemas.user import Registration,Send_Otp
+from app.schemas.user import Registration,Send_Otp,Verifyotp
 from app.database import get_db
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select,insert
 from app.models.user import User
-from app.services.auth_service import registering_user
-from app.services.email_service import send_otp,store_otp
+from app.models.otp_verification import Otpverification
+from app.services.auth_service import registering_user,store_otp,verifying_otp
+from app.services.email_service import send_otp
 app = FastAPI()
 
 @app.post("/register")
@@ -45,4 +46,26 @@ def sending_otp(send : Send_Otp,
         send_otp(send,otp)
         return " Email Sent Successfully"
 
+@app.post("/verify_otp")
+def verify_otp_route(
+    ver: Verifyotp,
+    db: Session = Depends(get_db)
+):
+    result = verifying_otp(ver, db)
 
+    if result:
+        user_result = db.execute(
+            select(User).where(User.email == ver.email)
+        )
+
+        user = user_result.scalar_one_or_none()
+
+        user.is_verified = True
+        db.commit()
+
+        return "Email Verified Successfully"
+
+    raise HTTPException(
+        status_code=400,
+        detail="Invalid or Expired OTP"
+    )

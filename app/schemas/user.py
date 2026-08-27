@@ -7,6 +7,6 @@ class Registration(BaseModel):
 class Send_Otp(BaseModel):
     email : EmailStr
 
-class Verify_otp(BaseModel):
+class Verifyotp(BaseModel):
     email : EmailStr
     otp : str
