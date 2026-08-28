@@ -54,15 +54,6 @@ def verify_otp_route(
     result = verifying_otp(ver, db)
 
     if result:
-        user_result = db.execute(
-            select(User).where(User.email == ver.email)
-        )
-
-        user = user_result.scalar_one_or_none()
-
-        user.is_verified = True
-        db.commit()
-
         return "Email Verified Successfully"
 
     raise HTTPException(

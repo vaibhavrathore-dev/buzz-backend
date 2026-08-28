@@ -34,24 +34,44 @@ def store_otp(us : User,
     
     return otp
 
-def verifying_otp(verify : Verifyotp,
-               db:Session):
-     result = db.execute(select(User).where(User.email == verify.email))
-     user = result.scalar_one_or_none()
-     find = db.execute(
-    select(Otpverification)
-    .where(Otpverification.user_id == user.user_id)
-    .order_by(Otpverification.created_at.desc())
-    .limit(1)
-)
-     found = find.scalar_one_or_none()
-     hash_otp = found.otp_hash
-     
-     expiry = found.expires_at
+def verifying_otp(verify: Verifyotp, db: Session):
 
-     if expiry > datetime.now(timezone.utc):
-             verified = verify_otp(hash_otp,verify.otp)
-             return verified
-     else:
-             return False
+
+    result = db.execute(
+        select(User).where(User.email == verify.email)
+    )
+
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        return False
+
+    find = db.execute(
+        select(Otpverification)
+        .where(Otpverification.user_id == user.user_id)
+        .order_by(Otpverification.created_at.desc())
+        .limit(1)
+    )
+
+    found = find.scalar_one_or_none()
+
+    if found is None:
+        return False
+
+    expiry = found.expires_at
+
+    if expiry <= datetime.now(timezone.utc):
+        return False
+
+    verified = verify_otp(found.otp_hash, verify.otp)
+
+    if not verified:
+        return False
+    
+    user.is_verified = True
+
+    db.delete(found)
+    db.commit()
+
+    return True
              
