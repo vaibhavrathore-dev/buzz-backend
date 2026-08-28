@@ -1,11 +1,10 @@
-from app.schemas.user import Registration
+from app.schemas.user import Registration,Verifyotp,Login
 from app.core.security import hash_password,verify_password,generate_otp
 from app.models.otp_verification import Otpverification
 from sqlalchemy.orm import Session
 from sqlalchemy import insert,select
 from datetime import datetime, timedelta, timezone
 from app.models.user import User
-from app.schemas.user import Send_Otp,Verifyotp
 from app.core.security import generate_otp,hashed_otp,verify_otp
 
 
@@ -61,6 +60,8 @@ def verifying_otp(verify: Verifyotp, db: Session):
     expiry = found.expires_at
 
     if expiry <= datetime.now(timezone.utc):
+        db.delete(found)
+        db.commit()
         return False
 
     verified = verify_otp(found.otp_hash, verify.otp)
@@ -74,4 +75,10 @@ def verifying_otp(verify: Verifyotp, db: Session):
     db.commit()
 
     return True
-             
+
+def logging(Log : Login,db : Session):
+    result = db.execute(select(User).where(User.email==Log.email) )
+    user =  result.scalar_one_or_none
+    if user is None:
+        return False
+    
