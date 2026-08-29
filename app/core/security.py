@@ -1,7 +1,15 @@
 from passlib.context import CryptContext
+from app.core.config import settings
 import secrets
+from datetime import datetime,timezone,timedelta
+from jose import jwt
 
 pwd_context = CryptContext(schemes=["bcrypt"] , deprecated=["auto"])
+
+with open(settings.jwt_private_key,"r") as file:
+    JWT_PRIVATE =  file.read()
+with open(settings.jwt_public_key,"r") as file:
+    JWT_PUBLIC = file.read()
 
 def hash_password(password):
     hashed = pwd_context.hash(password)
@@ -23,3 +31,24 @@ def hashed_otp(otp):
 def verify_otp(hash_otp,otp):
     verify = pwd_context.verify(otp,hash_otp)
     return verify
+
+def create_access_token(user_id,role):
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub" : str(user_id),
+        "role" : role,
+        "iat" : now,
+        "exp" : now + timedelta(minutes=7200)
+        }
+    token =  jwt.encode(payload,
+                        JWT_PRIVATE,
+                        algorithm="RS256")
+    return token
+
+def decode_access_token(token):
+    payload = jwt.decode(
+        token,
+        JWT_PUBLIC,
+        algorithms="RS256"
+    )
+    return payload

@@ -10,3 +10,8 @@ class Send_Otp(BaseModel):
 class Verifyotp(BaseModel):
     email : EmailStr
     otp : str
+
+class Login(BaseModel):
+    email : EmailStr
+    password : str
+    

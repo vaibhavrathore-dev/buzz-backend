@@ -1,5 +1,5 @@
 from app.schemas.user import Registration,Verifyotp,Login
-from app.core.security import hash_password,verify_password,generate_otp
+from app.core.security import hash_password,verify_password,generate_otp,create_access_token
 from app.models.otp_verification import Otpverification
 from sqlalchemy.orm import Session
 from sqlalchemy import insert,select
@@ -76,9 +76,32 @@ def verifying_otp(verify: Verifyotp, db: Session):
 
     return True
 
-def logging(Log : Login,db : Session):
-    result = db.execute(select(User).where(User.email==Log.email) )
-    user =  result.scalar_one_or_none
+def logging(Log: Login, db: Session):
+
+    result = db.execute(
+        select(User).where(User.email == Log.email)
+    )
+
+    user = result.scalar_one_or_none()
+
     if user is None:
         return False
+
+    if user.is_verified is False:
+        return "UNVERIFIED"
+
+    check = verify_password(
+        Log.password,
+        user.password_hash
+    )
+
+    if check is False:
+        return False
+
+    return create_access_token(
+        user.user_id,
+        user.role
+    )
+
+
     

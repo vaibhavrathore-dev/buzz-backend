@@ -1,11 +1,11 @@
 from fastapi import FastAPI , Depends , HTTPException
-from app.schemas.user import Registration,Send_Otp,Verifyotp
+from app.schemas.user import Registration,Send_Otp,Verifyotp,Login
 from app.database import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy import select,insert
 from app.models.user import User
 from app.models.otp_verification import Otpverification
-from app.services.auth_service import registering_user,store_otp,verifying_otp
+from app.services.auth_service import registering_user,store_otp,verifying_otp,logging
 from app.services.email_service import send_otp
 app = FastAPI()
 
@@ -60,3 +60,15 @@ def verify_otp_route(
         status_code=400,
         detail="Invalid or Expired OTP"
     )
+
+@app.post("/login")
+def log_in(log : Login,db : Session = Depends(get_db)):
+    token = logging(log, db)
+
+    if token is False:
+     raise HTTPException(
+        status_code=401,
+        detail="Invalid email or password"
+     )
+
+    return token
