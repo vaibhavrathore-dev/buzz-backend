@@ -14,4 +14,6 @@ class Verifyotp(BaseModel):
 class Login(BaseModel):
     email : EmailStr
     password : str
-    
+
+class Refresh_Token_Request(BaseModel):
+    refresh_token : str

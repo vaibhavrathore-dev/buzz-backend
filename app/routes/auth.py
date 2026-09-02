@@ -1,5 +1,5 @@
 from fastapi import FastAPI , Depends , HTTPException
-from app.schemas.user import Registration,Send_Otp,Verifyotp,Login
+from app.schemas.user import Registration,Send_Otp,Verifyotp,Login,Refresh_Token_Request
 from app.database import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy import select,insert
@@ -103,4 +103,11 @@ def log_in(log : Login,db : Session = Depends(get_db)):
    return {
        "access_token" : result,
        "token_type" : "bearer"
-   }
+    }
+
+@app.post("/refresh")
+def refresh(r : Refresh_Token_Request,db : Session = Depends(get_db)):
+    
+   
+
+   
