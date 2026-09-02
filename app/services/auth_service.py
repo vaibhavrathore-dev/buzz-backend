@@ -8,7 +8,6 @@ from app.models.user import User
 from app.core.security import generate_otp,hashed_otp,verify_otp
 
 
-
 def registering_user(registration : Registration):
     email = registration.email
     password = registration.password
@@ -64,10 +63,16 @@ def verifying_otp(verify: Verifyotp, db: Session):
         db.commit()
         return False
 
+    if found.attempts>=5:
+        return "MAX ATTEMPTS"
+
     verified = verify_otp(found.otp_hash, verify.otp)
 
     if not verified:
+        found.attempts += 1
+        db.commit()
         return False
+
     
     user.is_verified = True
 
@@ -87,16 +92,21 @@ def logging(Log: Login, db: Session):
     if user is None:
         return False
 
-    if user.is_verified is False:
-        return "UNVERIFIED"
-
     check = verify_password(
-        Log.password,
-        user.password_hash
-    )
+            Log.password,
+            user.password_hash
+        )
 
+    
     if check is False:
         return False
+
+    if user.is_active is False:
+        return "Inactive"
+
+
+    if user.is_verified is False:
+        return "Unverified"
 
     return create_access_token(
         user.user_id,

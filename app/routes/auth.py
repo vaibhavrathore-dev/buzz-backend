@@ -31,9 +31,9 @@ def register_user(register : Registration,
         return "Email Registered Successfully"
 
 @app.post("/send_otp")
-def sending_otp(send : Send_Otp,
+def sending_otp(s : Send_Otp,
              db : Session = Depends(get_db)):
-    result = db.execute(select(User).where(User.email == send.email))
+    result = db.execute(select(User).where(User.email == s.email))
     user = result.scalar_one_or_none()
 
     if user is None:
@@ -43,7 +43,7 @@ def sending_otp(send : Send_Otp,
         )
     else:
         otp = store_otp(user,db)
-        send_otp(send,otp)
+        send_otp(s,db)
         return " Email Sent Successfully"
 
 @app.post("/verify_otp")
@@ -63,12 +63,27 @@ def verify_otp_route(
 
 @app.post("/login")
 def log_in(log : Login,db : Session = Depends(get_db)):
-    token = logging(log, db)
+   result = logging(log, db)
 
-    if token is False:
-     raise HTTPException(
-        status_code=401,
-        detail="Invalid email or password"
-     )
+   if result is False:
+       raise HTTPException(
+           status_code=401,
+           detail = "Invalid email or password"
+       )
 
-    return token
+   if result == "Inactive":
+    raise HTTPException(
+        status_code=403,
+        detail="Account is inactive"
+    )
+
+   if result == "Unverified":
+       raise HTTPException(
+           status_code=403,
+           detail="Account is Unverified"
+       )
+
+   return {
+       "access_token" : result,
+       "token_type" : "bearer"
+   }

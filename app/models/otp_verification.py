@@ -34,6 +34,14 @@ class Otpverification(Base):
         String(255),
         nullable=False
     )
+
+    attempts : Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default="0"
+    )
+
     expires_at : Mapped[DateTime] = mapped_column(
          DateTime(timezone=True),
                 server_default=func.now(),
