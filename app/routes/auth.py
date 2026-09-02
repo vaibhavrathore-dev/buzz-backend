@@ -31,20 +31,37 @@ def register_user(register : Registration,
         return "Email Registered Successfully"
 
 @app.post("/send_otp")
-def sending_otp(s : Send_Otp,
-             db : Session = Depends(get_db)):
-    result = db.execute(select(User).where(User.email == s.email))
-    user = result.scalar_one_or_none()
+def sending_otp(
+    s: Send_Otp,
+    db: Session = Depends(get_db)
+):
+    result = send_otp(s, db)
 
-    if user is None:
+    if result is False:
         raise HTTPException(
             status_code=404,
             detail="User Not Found"
         )
-    else:
-        otp = store_otp(user,db)
-        send_otp(s,db)
-        return " Email Sent Successfully"
+
+    if result == "Already Verified":
+        raise HTTPException(
+            status_code=400,
+            detail="This email is already verified"
+        )
+
+    if result == "Wait":
+        raise HTTPException(
+            status_code=429,
+            detail="Please wait before requesting another OTP"
+        )
+
+    if result == "OTP Sending Failed":
+        raise HTTPException(
+            status_code=500,
+            detail="OTP Sending Failed"
+        )
+
+    return {"message": "Email Sent Successfully"}
 
 @app.post("/verify_otp")
 def verify_otp_route(

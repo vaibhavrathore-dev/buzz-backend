@@ -1,11 +1,13 @@
 from app.schemas.user import Registration,Verifyotp,Login
-from app.core.security import hash_password,verify_password,generate_otp,create_access_token
+from app.core.security import hash_password,verify_password,generate_otp,create_access_token,create_refresh_token
 from app.models.otp_verification import Otpverification
 from sqlalchemy.orm import Session
 from sqlalchemy import insert,select
 from datetime import datetime, timedelta, timezone
 from app.models.user import User
 from app.core.security import generate_otp,hashed_otp,verify_otp
+from app.models.refresh_tokens import refresh_token
+import hashlib
 
 
 def registering_user(registration : Registration):
@@ -108,10 +110,40 @@ def logging(Log: Login, db: Session):
     if user.is_verified is False:
         return "Unverified"
 
-    return create_access_token(
+    acess_token = create_access_token(
+         user.user_id,
+         user.role
+        )
+
+    refresh_token = create_refresh_token(
         user.user_id,
         user.role
     )
+    hash_token = hashlib.sha3_256(
+    refresh_token.encode()
+    ).hexdigest()
+    refresh_expires_at = (
+    datetime.now(timezone.utc)
+    + timedelta(days=30))
+
+    stored_token = refresh_token(
+    user_id=user.user_id,
+    token_hash=hash_token,
+    expires_at=refresh_expires_at
+    )
+    db.add(stored_token)
+    db.commit()
+
+    return {
+        "acess_token" : acess_token,
+        "refresh_token" : refresh_token,
+        "token_type" : "bearer"
+    }
+
+  
+
+
+
 
 
     

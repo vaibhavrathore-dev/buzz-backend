@@ -38,7 +38,8 @@ def create_access_token(user_id,role):
         "sub" : str(user_id),
         "role" : role,
         "iat" : now,
-        "exp" : now + timedelta(minutes=7200)
+        "exp" : now + timedelta(minutes=15),
+        "type" : "access"
         }
     token =  jwt.encode(payload,
                         JWT_PRIVATE,
@@ -52,3 +53,19 @@ def decode_access_token(token):
         algorithms="RS256"
     )
     return payload
+
+def create_refresh_token(user_id,role):
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub" : str(user_id),
+        "role" : role,
+        "iat" : now,
+        "exp" : now + timedelta(days =30),
+        "type" : "refresh" 
+    }
+    token = jwt.encode(
+        payload,
+        JWT_PRIVATE,
+        algorithm="RS256"
+    )
+    return token
