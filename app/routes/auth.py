@@ -7,6 +7,9 @@ from app.models.user import User
 from app.models.otp_verification import Otpverification
 from app.services.auth_service import registering_user,store_otp,verifying_otp,logging
 from app.services.email_service import send_otp
+from app.core.security import decode_refresh,create_access_token
+from app.models.refresh_tokens import RefreshToken
+import hashlib
 app = FastAPI()
 
 @app.post("/register")
@@ -101,13 +104,47 @@ def log_in(log : Login,db : Session = Depends(get_db)):
        )
 
    return {
-       "access_token" : result,
-       "token_type" : "bearer"
+    "access_token": result["access_token"],
+    "refresh_token": result["refresh_token"],
+    "token_type": "bearer"
     }
 
 @app.post("/refresh")
 def refresh(r : Refresh_Token_Request,db : Session = Depends(get_db)):
-    
+    payload = decode_refresh(r.refresh_token)
+
+    print("PAYLOAD:", payload)
+    print("TOKEN TYPE:", payload.get("type"))
+    if payload.get("type") == "refresh":
+        user_id = payload.get("sub")
+        role = payload.get("role")
+        hashed = hashlib.sha3_256(
+            r.refresh_token.encode()
+            ).hexdigest()
+        print("USER ID:", user_id)
+        print("HASH FROM REQUEST:", hashed)
+
+        to = db.execute(select(RefreshToken).where(RefreshToken.user_id == user_id,RefreshToken.token_hash == hashed))
+        ken = to.scalar_one_or_none()
+
+        print("DATABASE RESULT:", ken)
+        if ken is None:
+                    raise HTTPException(
+                        status_code=403,
+                        detail="Invalid refresh token"
+                    )
+        
+        return create_access_token(user_id , role)
+      
+
+    else:
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid refresh token"
+        )
+            
+
+
    
 
    

@@ -6,7 +6,7 @@ from sqlalchemy import insert,select
 from datetime import datetime, timedelta, timezone
 from app.models.user import User
 from app.core.security import generate_otp,hashed_otp,verify_otp
-from app.models.refresh_tokens import refresh_token
+from app.models.refresh_tokens import RefreshToken
 import hashlib
 
 
@@ -110,7 +110,7 @@ def logging(Log: Login, db: Session):
     if user.is_verified is False:
         return "Unverified"
 
-    acess_token = create_access_token(
+    access_token = create_access_token(
          user.user_id,
          user.role
         )
@@ -126,7 +126,7 @@ def logging(Log: Login, db: Session):
     datetime.now(timezone.utc)
     + timedelta(days=30))
 
-    stored_token = refresh_token(
+    stored_token = RefreshToken(
     user_id=user.user_id,
     token_hash=hash_token,
     expires_at=refresh_expires_at
@@ -135,7 +135,7 @@ def logging(Log: Login, db: Session):
     db.commit()
 
     return {
-        "acess_token" : acess_token,
+        "access_token" : access_token,
         "refresh_token" : refresh_token,
         "token_type" : "bearer"
     }

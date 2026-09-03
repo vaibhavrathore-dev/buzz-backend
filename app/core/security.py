@@ -2,7 +2,8 @@ from passlib.context import CryptContext
 from app.core.config import settings
 import secrets
 from datetime import datetime,timezone,timedelta
-from jose import jwt
+from jose import jwt,JWTError,ExpiredSignatureError
+from fastapi import HTTPException
 
 pwd_context = CryptContext(schemes=["bcrypt"] , deprecated=["auto"])
 
@@ -69,3 +70,20 @@ def create_refresh_token(user_id,role):
         algorithm="RS256"
     )
     return token
+def decode_refresh(token):
+
+    try:
+       payload = jwt.decode(token,
+                         JWT_PUBLIC,
+                         algorithms="RS256")
+       return payload
+    except ExpiredSignatureError:
+        raise HTTPException (
+            status_code=401,
+            detail="Expired refresh token,Login Again"
+        )
+    except JWTError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid refresh token"
+        )

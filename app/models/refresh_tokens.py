@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from app.models import user
 
-class refresh_token(Base):
+class RefreshToken(Base):
     __tablename__ = "refresh_token"
 
     refresh_token_id : Mapped[UUID] = mapped_column(
@@ -21,7 +21,7 @@ class refresh_token(Base):
 
     user_id : Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey=("users.user_id"),
+        ForeignKey("users.user_id"),
         nullable= False
     )
 
