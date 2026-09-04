@@ -95,3 +95,89 @@ def send_otp(s: Send_Otp, db: Session):
 
         db.rollback()
         return "OTP Sending Failed"
+
+
+def forgot_otp(s : Send_Otp , db : Session):
+    result = db.execute(select(User) . where (User.email == s.email))
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        return False
+    if user.is_active is False:
+        return False
+    if user.is_verified is False:
+        return False
+
+    result = db.execute(
+    select(Otpverification)
+    .where(
+        Otpverification.user_id == user.user_id,
+        Otpverification.purpose == "forgot_password"
+    )
+    .order_by(Otpverification.created_at.desc())
+    .limit(1)
+    )
+    
+    found = result.scalar_one_or_none()
+    
+    if found is not None:
+    
+            cooldown = found.created_at + timedelta(seconds=60)
+    
+            if datetime.now(timezone.utc) < cooldown:
+                return "Wait"
+    
+            db.delete(found)
+
+ 
+    otp = generate_otp()
+    otp_hash = hashed_otp(otp)
+
+    new_otp = Otpverification(
+        user_id=user.user_id,
+        otp_hash=otp_hash,
+        attempts=0,
+        purpose="forgot_password",
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=5)
+        )
+
+    db.add(new_otp)
+
+    message = EmailMessage()
+    message["From"] = settings.smtp_username
+    message["To"] = s.email
+    message["Subject"] = "Otp regarding Resetting Password"
+
+    message.set_content(
+        f"Your OTP for resetting the password is {otp}.\n\n"
+        f"This OTP is valid for only 5 minutes."
+        )
+
+    try:
+
+        
+        with smtplib.SMTP(
+            settings.smtp_host,
+            settings.smtp_port
+          ) as server:
+
+         server.starttls()
+
+         server.login(
+                settings.smtp_username,
+                settings.smtp_password
+            )
+
+         server.send_message(message)
+
+
+        db.commit()
+
+        return "OTP Sent, Check Your Email"
+
+    except Exception:
+
+        db.rollback()
+        return "OTP Sending Failed"
+
+

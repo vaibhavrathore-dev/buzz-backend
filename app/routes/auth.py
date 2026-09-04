@@ -6,7 +6,7 @@ from sqlalchemy import select,insert
 from app.models.user import User
 from app.models.otp_verification import Otpverification
 from app.services.auth_service import registering_user,store_otp,verifying_otp,logging
-from app.services.email_service import send_otp
+from app.services.email_service import send_otp,forgot_otp
 from app.core.security import decode_refresh,create_access_token
 from app.models.refresh_tokens import RefreshToken
 import hashlib
@@ -160,4 +160,30 @@ def logout(r : Refresh_Token_Request,db : Session = Depends(get_db)):
     db.commit()
     return "Successfully Logged out"
 
-   
+@app.post("/forgot_password")
+def sending_forgot_otp(
+    s: Send_Otp,
+    db: Session = Depends(get_db)
+):
+    result = forgot_otp(s, db)
+
+    if result == "Wait":
+        raise HTTPException(
+            status_code=429,
+            detail="Please wait before requesting another OTP"
+        )
+
+    if result == "OTP Sending Failed":
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to send OTP"
+        )
+
+    if result is False:
+        return {
+            "message": "If this email is eligible, an OTP has been sent"
+        }
+
+    return {
+        "message": "OTP sent successfully"
+    }

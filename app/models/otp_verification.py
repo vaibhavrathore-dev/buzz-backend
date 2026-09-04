@@ -35,6 +35,13 @@ class Otpverification(Base):
         nullable=False
     )
 
+    purpose : Mapped[str] = mapped_column(
+        String(50),
+        nullable= False,
+        default="email_verification",
+        server_default="email_verification"
+    )
+
     attempts : Mapped[int] = mapped_column(
         Integer,
         nullable=False,
