@@ -143,8 +143,21 @@ def refresh(r : Refresh_Token_Request,db : Session = Depends(get_db)):
             detail="Invalid refresh token"
         )
             
+@app.post("/logout")
+def logout(r : Refresh_Token_Request,db : Session = Depends(get_db)):
+    hashed = hashlib.sha3_256(
+                r.refresh_token.encode()
+                ).hexdigest()
+    table = db.execute(select(RefreshToken).where(RefreshToken.token_hash == hashed))
+    to = table.scalar_one_or_none()
 
-
-   
+    if to is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Invalid refresh token or Already Logged out"
+        )  
+    db.delete(to)
+    db.commit()
+    return "Successfully Logged out"
 
    
