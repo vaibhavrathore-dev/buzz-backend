@@ -17,3 +17,9 @@ class Login(BaseModel):
 
 class Refresh_Token_Request(BaseModel):
     refresh_token : str
+
+class ResetPassword(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str
+    confirm_password: str

@@ -1,8 +1,8 @@
-from app.schemas.user import Registration,Verifyotp,Login
+from app.schemas.user import Registration,Verifyotp,Login,ResetPassword
 from app.core.security import hash_password,verify_password,generate_otp,create_access_token,create_refresh_token
 from app.models.otp_verification import Otpverification
 from sqlalchemy.orm import Session
-from sqlalchemy import insert,select
+from sqlalchemy import insert,select,delete
 from datetime import datetime, timedelta, timezone
 from app.models.user import User
 from app.core.security import generate_otp,hashed_otp,verify_otp
@@ -140,6 +140,131 @@ def logging(Log: Login, db: Session):
         "token_type" : "bearer"
     }
 
+
+def verifying_forgot_otp(v: Verifyotp, db: Session):
+
+    result = db.execute(
+        select(User).where(User.email == v.email)
+    )
+
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        return False
+
+    result = db.execute(
+        select(Otpverification)
+        .where(
+            Otpverification.user_id == user.user_id,
+            Otpverification.purpose == "forgot_password"
+        )
+        .order_by(Otpverification.created_at.desc())
+        .limit(1)
+    )
+
+    found = result.scalar_one_or_none()
+
+    if found is None:
+        return False
+
+    if found.expires_at < datetime.now(timezone.utc):
+
+        db.delete(found)
+        db.commit()
+
+        return False
+
+    if found.attempts >= 5:
+
+        db.delete(found)
+        db.commit()
+
+        return False
+
+    entered_hash = hashed_otp(v.otp)
+
+    if entered_hash != found.otp_hash:
+
+        found.attempts += 1
+
+        db.commit()
+
+        return False
+
+    return True
+
+def resetting_password(r: ResetPassword, db: Session):
+
+    result = db.execute(
+        select(User).where(User.email == r.email)
+    )
+
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        return "User Not Found"
+
+    result = db.execute(
+        select(Otpverification)
+        .where(
+            Otpverification.user_id == user.user_id,
+            Otpverification.purpose == "forgot_password"
+        )
+        .order_by(Otpverification.created_at.desc())
+        .limit(1)
+    )
+
+    found = result.scalar_one_or_none()
+
+    if found is None:
+        return "Invalid OTP"
+
+    if found.expires_at < datetime.now(timezone.utc):
+
+        db.delete(found)
+        db.commit()
+
+        return "Invalid OTP"
+
+    if found.attempts >= 5:
+
+        db.delete(found)
+        db.commit()
+
+        return "Invalid OTP"
+
+    entered_hash = hashed_otp(r.otp)
+
+    if entered_hash != found.otp_hash:
+
+        found.attempts += 1
+
+        db.commit()
+
+        return "Invalid OTP"
+
+    new_password_hash = hash_password(r.new_password)
+
+    user.password_hash = new_password_hash
+
+    db.delete(found)
+
+    db.execute(
+    delete(RefreshToken)
+    .where(RefreshToken.user_id == user.user_id)
+    )
+
+    try:
+
+        db.commit()
+
+        return True
+
+    except Exception:
+
+        db.rollback()
+
+        return False
   
 
 

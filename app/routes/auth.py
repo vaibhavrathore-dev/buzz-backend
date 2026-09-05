@@ -1,11 +1,11 @@
 from fastapi import FastAPI , Depends , HTTPException
-from app.schemas.user import Registration,Send_Otp,Verifyotp,Login,Refresh_Token_Request
+from app.schemas.user import Registration,Send_Otp,Verifyotp,Login,Refresh_Token_Request,ResetPassword
 from app.database import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy import select,insert
 from app.models.user import User
 from app.models.otp_verification import Otpverification
-from app.services.auth_service import registering_user,store_otp,verifying_otp,logging
+from app.services.auth_service import registering_user,store_otp,verifying_otp,logging,verifying_forgot_otp,resetting_password
 from app.services.email_service import send_otp,forgot_otp
 from app.core.security import decode_refresh,create_access_token
 from app.models.refresh_tokens import RefreshToken
@@ -186,4 +186,63 @@ def sending_forgot_otp(
 
     return {
         "message": "OTP sent successfully"
+    }
+
+@app.post("/verify_forgot_otp")
+def verify_forgot_otp(
+    v: Verifyotp,
+    db: Session = Depends(get_db)
+):
+
+    result = verifying_forgot_otp(v, db)
+
+    if result is False:
+
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid or expired OTP"
+        )
+
+    return {
+        "message": "OTP verified successfully"
+    }
+
+@app.post("/reset_password")
+def reset_password(
+    r: ResetPassword,
+    db: Session = Depends(get_db)
+):
+
+    if r.new_password != r.confirm_password:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Passwords do not match"
+        )
+
+    result = resetting_password(r, db)
+
+    if result == "User Not Found":
+
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    if result == "Invalid OTP":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid or expired OTP"
+        )
+
+    if result is False:
+
+        raise HTTPException(
+            status_code=500,
+            detail="Password reset failed"
+        )
+
+    return {
+        "message": "Password reset successfully"
     }
