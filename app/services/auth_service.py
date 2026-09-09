@@ -174,23 +174,15 @@ def verifying_forgot_otp(v: Verifyotp, db: Session):
 
         return False
 
-    if found.attempts >= 5:
-
-        db.delete(found)
-        db.commit()
-
-        return False
-
-    entered_hash = hashed_otp(v.otp)
-
-    if entered_hash != found.otp_hash:
-
+    f = verify_otp(found.otp_hash,v.otp)
+    if f is False:
         found.attempts += 1
+        if found.attempts >= 5:
+            db.delete(found)
 
         db.commit()
 
         return False
-
     return True
 
 def resetting_password(r: ResetPassword, db: Session):
@@ -226,33 +218,27 @@ def resetting_password(r: ResetPassword, db: Session):
 
         return "Invalid OTP"
 
-    if found.attempts >= 5:
 
-        db.delete(found)
-        db.commit()
-
-        return "Invalid OTP"
-
-    entered_hash = hashed_otp(r.otp)
-
-    if entered_hash != found.otp_hash:
-
+    
+    f = verify_otp(found.otp_hash,r.otp)
+    if f is False:
         found.attempts += 1
+        if found.attempts >= 5:
+            db.delete(found)
 
         db.commit()
 
         return "Invalid OTP"
-
     new_password_hash = hash_password(r.new_password)
 
     user.password_hash = new_password_hash
 
     db.delete(found)
-
+ 
     db.execute(
-    delete(RefreshToken)
-    .where(RefreshToken.user_id == user.user_id)
-    )
+     delete(RefreshToken)
+     .where(RefreshToken.user_id == user.user_id)
+     )
 
     try:
 
