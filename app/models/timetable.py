@@ -46,7 +46,7 @@ class Timetable(Base):
         nullable=False,
     )
 
-    lecture_slot_id: Mapped[UUID] = mapped_column(
+    lecture_slot_id: Mapped[int] = mapped_column(
         ForeignKey("lecture_slots.lecture_slot_id"),
         nullable=False,
     )
