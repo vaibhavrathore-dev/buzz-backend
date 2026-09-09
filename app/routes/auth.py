@@ -1,4 +1,4 @@
-from fastapi import FastAPI , Depends , HTTPException
+from fastapi import APIRouter , Depends , HTTPException
 from app.schemas.user import Registration,Send_Otp,Verifyotp,Login,Refresh_Token_Request,ResetPassword
 from app.database import get_db
 from sqlalchemy.orm import Session
@@ -10,9 +10,9 @@ from app.services.email_service import send_otp,forgot_otp
 from app.core.security import decode_refresh,create_access_token
 from app.models.refresh_tokens import RefreshToken
 import hashlib
-app = FastAPI()
+router = APIRouter()
 
-@app.post("/register")
+@router.post("/register")
 def register_user(register : Registration,
                   db : Session = Depends(get_db)):
     result = db.execute(
@@ -33,7 +33,7 @@ def register_user(register : Registration,
         db.refresh(user)
         return "Email Registered Successfully"
 
-@app.post("/send_otp")
+@router.post("/send_otp")
 def sending_otp(
     s: Send_Otp,
     db: Session = Depends(get_db)
@@ -66,7 +66,7 @@ def sending_otp(
 
     return {"message": "Email Sent Successfully"}
 
-@app.post("/verify_otp")
+@router.post("/verify_otp")
 def verify_otp_route(
     ver: Verifyotp,
     db: Session = Depends(get_db)
@@ -81,7 +81,7 @@ def verify_otp_route(
         detail="Invalid or Expired OTP"
     )
 
-@app.post("/login")
+@router.post("/login")
 def log_in(log : Login,db : Session = Depends(get_db)):
    result = logging(log, db)
 
@@ -109,7 +109,7 @@ def log_in(log : Login,db : Session = Depends(get_db)):
     "token_type": "bearer"
     }
 
-@app.post("/refresh")
+@router.post("/refresh")
 def refresh(r : Refresh_Token_Request,db : Session = Depends(get_db)):
     payload = decode_refresh(r.refresh_token)
 
@@ -143,7 +143,7 @@ def refresh(r : Refresh_Token_Request,db : Session = Depends(get_db)):
             detail="Invalid refresh token"
         )
             
-@app.post("/logout")
+@router.post("/logout")
 def logout(r : Refresh_Token_Request,db : Session = Depends(get_db)):
     hashed = hashlib.sha3_256(
                 r.refresh_token.encode()
@@ -160,7 +160,7 @@ def logout(r : Refresh_Token_Request,db : Session = Depends(get_db)):
     db.commit()
     return "Successfully Logged out"
 
-@app.post("/forgot_password")
+@router.post("/forgot_password")
 def sending_forgot_otp(
     s: Send_Otp,
     db: Session = Depends(get_db)
@@ -188,7 +188,7 @@ def sending_forgot_otp(
         "message": "OTP sent successfully"
     }
 
-@app.post("/verify_forgot_otp")
+@router.post("/verify_forgot_otp")
 def verify_forgot_otp(
     v: Verifyotp,
     db: Session = Depends(get_db)
@@ -207,7 +207,7 @@ def verify_forgot_otp(
         "message": "OTP verified successfully"
     }
 
-@app.post("/reset_password")
+@router.post("/reset_password")
 def reset_password(
     r: ResetPassword,
     db: Session = Depends(get_db)
