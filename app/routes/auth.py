@@ -1,6 +1,7 @@
 from fastapi import APIRouter , Depends , HTTPException
 from app.schemas.user import Registration,Send_Otp,Verifyotp,Login,Refresh_Token_Request,ResetPassword
 from app.database import get_db
+from app.schemas.common import MessageResponse , TokenResponse ,AccessTokenResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import select,insert
 from app.models.user import User
@@ -12,7 +13,7 @@ from app.models.refresh_tokens import RefreshToken
 import hashlib
 router = APIRouter()
 
-@router.post("/register")
+@router.post("/register",response_model=MessageResponse)
 def register_user(register : Registration,
                   db : Session = Depends(get_db)):
     result = db.execute(
@@ -25,15 +26,17 @@ def register_user(register : Registration,
             status_code=409,
             detail="Email already exists"
         )
-    if existing_user is None:
-        hashed =registering_user(register)
-        user =  User(email = register.email,password_hash = hashed)
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-        return "Email Registered Successfully"
 
-@router.post("/send_otp")
+    hashed =registering_user(register)
+    user =  User(email = register.email,password_hash = hashed,role = register.role)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return {
+            "message" : "Email Registered Successfully"
+        }
+
+@router.post("/send_otp",response_model=MessageResponse)
 def sending_otp(
     s: Send_Otp,
     db: Session = Depends(get_db)
@@ -66,7 +69,7 @@ def sending_otp(
 
     return {"message": "Email Sent Successfully"}
 
-@router.post("/verify_otp")
+@router.post("/verify_otp",response_model=MessageResponse)
 def verify_otp_route(
     ver: Verifyotp,
     db: Session = Depends(get_db)
@@ -74,14 +77,16 @@ def verify_otp_route(
     result = verifying_otp(ver, db)
 
     if result:
-        return "Email Verified Successfully"
+        return {
+            "message" : "Email Verified Successfully"
+        }
 
     raise HTTPException(
         status_code=400,
         detail="Invalid or Expired OTP"
     )
 
-@router.post("/login")
+@router.post("/login",response_model=TokenResponse)
 def log_in(log : Login,db : Session = Depends(get_db)):
    result = logging(log, db)
 
@@ -109,32 +114,29 @@ def log_in(log : Login,db : Session = Depends(get_db)):
     "token_type": "bearer"
     }
 
-@router.post("/refresh")
+@router.post("/refresh",response_model=AccessTokenResponse)
 def refresh(r : Refresh_Token_Request,db : Session = Depends(get_db)):
     payload = decode_refresh(r.refresh_token)
-
-    print("PAYLOAD:", payload)
-    print("TOKEN TYPE:", payload.get("type"))
     if payload.get("type") == "refresh":
         user_id = payload.get("sub")
         role = payload.get("role")
         hashed = hashlib.sha3_256(
             r.refresh_token.encode()
             ).hexdigest()
-        print("USER ID:", user_id)
-        print("HASH FROM REQUEST:", hashed)
 
         to = db.execute(select(RefreshToken).where(RefreshToken.user_id == user_id,RefreshToken.token_hash == hashed))
         ken = to.scalar_one_or_none()
-
-        print("DATABASE RESULT:", ken)
         if ken is None:
                     raise HTTPException(
                         status_code=403,
                         detail="Invalid refresh token"
                     )
         
-        return create_access_token(user_id , role)
+        access_token = create_access_token(user_id , role)
+        return {
+            "access_token" : access_token,
+            "token_type" : "bearer"
+        }
       
 
     else:
@@ -143,7 +145,7 @@ def refresh(r : Refresh_Token_Request,db : Session = Depends(get_db)):
             detail="Invalid refresh token"
         )
             
-@router.post("/logout")
+@router.post("/logout",response_model=MessageResponse)
 def logout(r : Refresh_Token_Request,db : Session = Depends(get_db)):
     hashed = hashlib.sha3_256(
                 r.refresh_token.encode()
@@ -158,9 +160,11 @@ def logout(r : Refresh_Token_Request,db : Session = Depends(get_db)):
         )  
     db.delete(to)
     db.commit()
-    return "Successfully Logged out"
+    return {
+        "message" : "Successfully logged out"
+    }
 
-@router.post("/forgot_password")
+@router.post("/forgot_password",response_model=MessageResponse)
 def sending_forgot_otp(
     s: Send_Otp,
     db: Session = Depends(get_db)
@@ -179,16 +183,11 @@ def sending_forgot_otp(
             detail="Unable to send OTP"
         )
 
-    if result is False:
-        return {
-            "message": "If this email is eligible, an OTP has been sent"
-        }
-
     return {
-        "message": "OTP sent successfully"
+        "message" : "If this email is registered,the email has been sent successfully"
     }
 
-@router.post("/verify_forgot_otp")
+@router.post("/verify_forgot_otp",response_model=MessageResponse)
 def verify_forgot_otp(
     v: Verifyotp,
     db: Session = Depends(get_db)
@@ -207,7 +206,7 @@ def verify_forgot_otp(
         "message": "OTP verified successfully"
     }
 
-@router.post("/reset_password")
+@router.post("/reset_password",response_model=MessageResponse)
 def reset_password(
     r: ResetPassword,
     db: Session = Depends(get_db)
