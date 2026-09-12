@@ -11,6 +11,7 @@ from app.services.email_service import send_otp,forgot_otp
 from app.core.security import decode_refresh,create_access_token
 from app.models.refresh_tokens import RefreshToken
 import hashlib
+from app.dependencies import get_current_user,require_teacher
 router = APIRouter()
 
 @router.post("/register",response_model=MessageResponse)
@@ -32,6 +33,8 @@ def register_user(register : Registration,
     db.add(user)
     db.commit()
     db.refresh(user)
+    
+
     return {
             "message" : "Email Registered Successfully"
         }
@@ -244,4 +247,21 @@ def reset_password(
 
     return {
         "message": "Password reset successfully"
+    }
+
+@router.get("/me")
+def me(
+    current_user: User = Depends(get_current_user)
+):
+    return {
+        "email": current_user.email,
+        "role": current_user.role
+    }
+
+@router.get("/teacher-test")
+def teacher_test(
+    current_user: User = Depends(require_teacher)
+):
+    return {
+        "message": "Teacher access granted"
     }
