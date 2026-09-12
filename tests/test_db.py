@@ -1,8 +1,8 @@
-from sqlalchemy import text
+from app.integrations.agc.client import AGCClient
 
-from app.database import engine
+agc = AGCClient()
 
+token = agc.get_login_token()
 
-with engine.connect() as connection:
-    result = connection.execute(text("SELECT current_user, current_database()"))
-    print(result.fetchone())
+print("Token found:", bool(token))
+print("Token length:", len(token))
