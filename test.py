@@ -1,11 +1,18 @@
 from getpass import getpass
-from app.integrations.agc.client import AGCClient
 
-roll = input("University roll number: ")
-password = getpass("AGC password: ")
+from app.integrations.agc.client import AGCClient
+from app.integrations.agc.parsers.dashboard import parse_subjects
+
+uni = input("Enter Your RollNo.: ")
+password = getpass("Enter Your Portal Password: ")
 
 agc = AGCClient()
 
-result = agc.login(roll, password)
+if agc.login(uni, password):
 
-print("Login successful:", result)
+    dashboard = agc.get_dashboard()
+
+    subjects = parse_subjects(dashboard)
+
+    for subject in subjects:
+        print(subject)

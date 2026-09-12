@@ -30,3 +30,15 @@ class AGCClient:
         }    
         response = self.client.post("/Elogin/StudentLogin",data=data)
         return response.url.path == "/DashBoardStudent"
+
+    def get_dashboard(self):
+     response = self.client.get("/DashBoardStudent")
+
+     response.raise_for_status()
+
+     if response.url.path != "/DashBoardStudent":
+        raise RuntimeError("AGC session is not authenticated")
+
+     soup = BeautifulSoup(response.text, "html.parser")
+
+     return soup
