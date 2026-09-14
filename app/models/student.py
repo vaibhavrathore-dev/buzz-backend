@@ -37,7 +37,7 @@ class Student(Base):
     String(50),
     nullable=True
 )
-last_lms_sync_at: Mapped[datetime | None] = mapped_column(
+    last_lms_sync_at: Mapped[datetime | None] = mapped_column(
     DateTime(timezone=True),
     nullable=True
 )

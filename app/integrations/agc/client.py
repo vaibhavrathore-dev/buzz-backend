@@ -42,3 +42,11 @@ class AGCClient:
      soup = BeautifulSoup(response.text, "html.parser")
 
      return soup
+
+    def get_profile(self):
+       response = self.client.get("/DashBoardStudent/Detail")
+       response.raise_for_status()
+       if response.url.path != "/DashBoardStudent/Detail":
+          raise RuntimeError("AGC session is not authenticated")
+       soup = BeautifulSoup(response.text,"html.parser")
+       return soup
