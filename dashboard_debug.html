@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Dashboard — Student Portal</title><link href="assets/portal.css?v=1787198002" rel="stylesheet"/>
+<script defer="" src="assets/portal.js?v=1787110012"></script>
+<style>
+  .topbar-student{background:#1f3a68;color:#fff;padding:14px 22px;display:flex;align-items:center;justify-content:space-between}
+  .topbar-student .brand{color:#fff;font-weight:700}.topbar-student a{color:#fff;opacity:.9;text-decoration:none;font-size:.88rem}
+  .tabs a{padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem;background:#fff;border:1px solid #e2e8f0;color:#475569}
+  .tabs a.active{background:#4f46e5;color:#fff;border-color:#4f46e5}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .sec-title{margin:20px 0 8px;color:#1f3a68;font-size:1.08rem;font-weight:700}
+  table.tb{width:100%;border-collapse:collapse;background:#fff;font-size:.9rem;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
+  table.tb th{background:#f1f5f9;text-align:left;padding:10px 12px;font-size:.74rem;text-transform:uppercase;letter-spacing:.03em;color:#475569}
+  table.tb td{padding:10px 12px;border-top:1px solid #eef2f7;vertical-align:top}
+  .chip{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:800}
+  .typ{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700}
+  .typ.theory{background:#dbeafe;color:#1e40af}.typ.lab{background:#ede9fe;color:#5b21b6}
+  a.contact{color:#1f3a68;text-decoration:none;font-weight:600}
+  .empty{text-align:center;padding:34px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;color:#94a3b8}
+  .dl-card{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fff;border:1px solid #e2e8f0;border-left:4px solid #4f46e5;border-radius:10px;padding:12px 16px;margin-bottom:10px}
+</style></head><body>
+<style>body .topbar-student{background:#1f3a68;color:#fff;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}body .topbar-student .brand{color:#fff;font-weight:700;font-size:1rem;line-height:1.2}body .topbar-student a{color:#fff;opacity:.9;text-decoration:none;font-size:.88rem}body .topbar-student a:hover{opacity:1;text-decoration:underline}</style><div class="topbar-student"><div style="display:flex;align-items:center;gap:10px"><div><div class="brand">Amritsar Group of Colleges</div><div style="font-size:.78rem;opacity:.85">Student Portal</div></div></div><div style="text-align:right"><div style="font-weight:600">Vaibhav Singh Rathore</div><div style="font-size:.78rem;opacity:.85">Roll: 2550930</div><a href="change_password.php" style="margin-right:12px">Change Password</a><a href="logout.php">Sign out</a></div></div><div style="max-width:1000px;margin:18px auto;padding:0 20px">
+<style>body .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding:0;max-width:none}body .tabs a{padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem;line-height:1.2;white-space:nowrap;background:#fff;border:1px solid #e2e8f0;color:#475569}body .tabs a:hover{border-color:#c7d2fe;color:#4f46e5}body .tabs a.active{background:#4f46e5;color:#fff;border-color:#4f46e5}</style><div class="tabs"><a class="active" href="dashboard.php">🏠 Dashboard</a><a href="attendance.php">🗓 Attendance</a><a href="assignment.php">📝 Assignments</a><a href="exams.php">🎓 Exams</a><a href="reappear_exam.php">🔁 Reappear</a><a href="fees.php">💳 Fees</a><a href="material.php">📚 Study Material</a><a href="electives.php">🔀 Electives</a><a href="eligibility.php">✅ Exam Eligibility</a><a href="datesheet.php">📅 Date Sheet</a><a href="certificates.php">📄 Certificates</a><a href="profile.php">👤 Profile</a></div>
+<h2 style="margin:0 0 2px;color:#1f3a68">Welcome, Vaibhav Singh Rathore 👋</h2>
+<div style="color:#64748b;font-size:.85rem;margin-bottom:8px">BTECH_CSE · Sem 3 · Section B · Roll 2550930</div>
+<!-- Subjects + faculty contacts -->
+<div class="sec-title">📚 My Subjects &amp; Faculty Contacts</div>
+<table class="tb">
+<thead><tr><th>Subject</th><th>Type</th><th>Faculty</th><th>Mobile</th><th>Email</th></tr></thead>
+<tbody>
+<tr>
+<td><strong>AGCS-25301</strong> — Probability and Statistics            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ theory">Theory</span></td>
+<td>Shama Kundra</td>
+<td><a class="contact" href="tel:6280666657">6280666657</a></td>
+<td><a class="contact" href="mailto:shama.kundra33@gmail.com">shama.kundra33@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25301</strong> — Probability and Statistics            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ theory">Tutorial G2</span></td>
+<td>Shama Kundra</td>
+<td><a class="contact" href="tel:6280666657">6280666657</a></td>
+<td><a class="contact" href="mailto:shama.kundra33@gmail.com">shama.kundra33@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25302</strong> — Object Oriented Programming using C++            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ theory">Theory</span></td>
+<td>Paramvir Kaur</td>
+<td><a class="contact" href="tel:8360298211">8360298211</a></td>
+<td><a class="contact" href="mailto:paramvir.othi@gmail.com">paramvir.othi@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25303</strong> — Data Structures            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ theory">Theory</span></td>
+<td>Veenum Devi</td>
+<td><a class="contact" href="tel:8437457221">8437457221</a></td>
+<td><a class="contact" href="mailto:94veenum@gmail.com">94veenum@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25303</strong> — Data Structures            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ theory">Tutorial G2</span></td>
+<td>Veenum Devi</td>
+<td><a class="contact" href="tel:8437457221">8437457221</a></td>
+<td><a class="contact" href="mailto:94veenum@gmail.com">94veenum@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25304</strong> — Computer Organization and Architecture            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ theory">Theory</span></td>
+<td>Shagun Arora</td>
+<td><a class="contact" href="tel:7508374797">7508374797</a></td>
+<td><a class="contact" href="mailto:shagun.arora490@gmail.com">shagun.arora490@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25305</strong> — Emerging Trends in Computer Science            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ theory">Theory</span></td>
+<td>Bhuvnesh Kumar</td>
+<td><a class="contact" href="tel:9855133003">9855133003</a></td>
+<td><a class="contact" href="mailto:bhuvnesh.acet1407@gmail.com">bhuvnesh.acet1407@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGMC-25001</strong> — Indian Constitution            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ theory">Theory</span></td>
+<td>Pardeep Kaur</td>
+<td><a class="contact" href="tel:8559024764">8559024764</a></td>
+<td><a class="contact" href="mailto:cheemapardeep00@gmail.com">cheemapardeep00@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25306</strong> — Object Oriented Programming using C++ Lab            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ lab">Lab G2</span></td>
+<td>Paramvir Kaur</td>
+<td><a class="contact" href="tel:8360298211">8360298211</a></td>
+<td><a class="contact" href="mailto:paramvir.othi@gmail.com">paramvir.othi@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25307</strong> — Data Structures Lab            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ lab">Lab G2</span></td>
+<td>Veenum Devi</td>
+<td><a class="contact" href="tel:8437457221">8437457221</a></td>
+<td><a class="contact" href="mailto:94veenum@gmail.com">94veenum@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25308</strong> — Artificial Intelligence Tools and Applications Lab            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ lab">Lab G2</span></td>
+<td>Jaspreet Singh</td>
+<td><a class="contact" href="tel:6239477214">6239477214</a></td>
+<td><a class="contact" href="mailto:erjaspreetsingh123@gmail.com">erjaspreetsingh123@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>AGCS-25309</strong> — Problem Solving using Python Lab            <div style="font-size:.72rem;color:#94a3b8">BTECH_CSE-3 B</div></td>
+<td><span class="typ lab">Lab G2</span></td>
+<td>Paramvir Kaur</td>
+<td><a class="contact" href="tel:8360298211">8360298211</a></td>
+<td><a class="contact" href="mailto:paramvir.othi@gmail.com">paramvir.othi@gmail.com</a></td>
+</tr>
+</tbody>
+</table>
+<div style="font-size:.78rem;color:#94a3b8;margin-top:6px">Contact the concerned faculty for any academic query or to report a wrong attendance entry (editable the same day).</div>
+</div>
+</body></html>

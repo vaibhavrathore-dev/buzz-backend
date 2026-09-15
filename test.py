@@ -1,16 +1,25 @@
 from getpass import getpass
 
-from app.integrations.agc.client import AGCClient
-from app.integrations.agc.parsers.dashboard import parse_subjects
+from app.integrations.ums.client import UMSClient
 
-uni = input("Enter Your RollNo.: ")
-password = getpass("Enter Your Portal Password: ")
 
-agc = AGCClient()
-if agc.login(uni, password):
-    profile = agc.get_profile()
-    for tag in profile.find_all(["div", "p", "h1", "h2", "h3", "h4", "span", "td"]):
-     text = tag.get_text(" ", strip=True)
+roll = input("University Roll Number: ")
+password = getpass("UMS Password: ")
 
-     if text and len(text) < 120:
-        print(tag.name, "->", text)
+ums = UMSClient()
+
+try:
+    logged_in = ums.login(roll, password)
+
+    print("Login successful:", logged_in)
+
+    if logged_in:
+        dashboard = ums.get_dashboard()
+        with open("dashboard_debug.html", "w", encoding="utf-8") as file:
+         file.write(str(dashboard))
+
+        print("Dashboard fetched successfully")
+        print("Page title:", dashboard.title.string if dashboard.title else "No title")
+
+finally:
+    ums.close()
