@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, String, Uuid
+from sqlalchemy import ForeignKey, String, Uuid,UniqueConstraint,func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -16,8 +16,15 @@ if TYPE_CHECKING:
 
 class Section(Base):
     __tablename__ = "sections"
+    __table_args__ = (
+        UniqueConstraint(
+            "semester_id",
+            "name",
+            name = "uq_semester_section"
+        ),
+    )
 
-    section_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    section_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True , server_default=func.gen_random_uuid())
     semester_id: Mapped[UUID] = mapped_column(ForeignKey("semesters.semester_id"), nullable=False)
     name: Mapped[str] = mapped_column(String(30), nullable=False)
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import String, Uuid
+from sqlalchemy import String, Uuid,func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class Department(Base):
     __tablename__ = "departments"
 
-    department_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    department_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True,server_default=func.gen_random_uuid())
     code: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
 

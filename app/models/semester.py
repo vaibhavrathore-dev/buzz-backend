@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, SmallInteger, UniqueConstraint, Uuid
+from sqlalchemy import CheckConstraint, ForeignKey, SmallInteger,func, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -21,7 +21,7 @@ class Semester(Base):
         CheckConstraint("semester_number >= 1 AND semester_number <= 12", name="ck_semester_number"),
     )
 
-    semester_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    semester_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True,server_default=func.gen_random_uuid())
     course_id: Mapped[UUID] = mapped_column(ForeignKey("courses.course_id"), nullable=False)
     semester_number: Mapped[int] = mapped_column(SmallInteger, nullable=False)
 

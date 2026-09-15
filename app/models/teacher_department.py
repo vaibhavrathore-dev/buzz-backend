@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Uuid
+from sqlalchemy import ForeignKey, Uuid ,func, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -15,8 +15,15 @@ if TYPE_CHECKING:
 
 class TeacherDepartment(Base):
     __tablename__ = "teacher_departments"
+    __table_args__ = (
+        UniqueConstraint(
+            "teacher_id",
+            "department_id",
+            name = "uq_teacher_department"
+        ),
+    )
 
-    teacher_department_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    teacher_department_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True,server_default=func.gen_random_uuid())
     teacher_id: Mapped[UUID] = mapped_column(ForeignKey("teachers.teacher_id"), nullable=False)
     department_id: Mapped[UUID] = mapped_column(ForeignKey("departments.department_id"), nullable=False)
 

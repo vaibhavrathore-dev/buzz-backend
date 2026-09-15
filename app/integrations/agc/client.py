@@ -13,13 +13,15 @@ class AGCClient:
 
     def get_login_token(self):
      response = self.client.get("/Elogin/StudentLogin")
+     response.raise_for_status()
      soup = BeautifulSoup(response.text,"html.parser")
      token_element =  soup.find("input" , {"name" : "__RequestVerificationToken"})
      if token_element is None:
             print("AGC verification token not found")
-     else:
-      value = token_element.get("value")
-      return value
+     value = token_element.get("value")
+     if value is None:
+        print("AGC verification token is empty")
+     return value
    
     def login(self,uni_roll_num : str , password : str):
         token = self.get_login_token()
@@ -50,3 +52,4 @@ class AGCClient:
           raise RuntimeError("AGC session is not authenticated")
        soup = BeautifulSoup(response.text,"html.parser")
        return soup
+

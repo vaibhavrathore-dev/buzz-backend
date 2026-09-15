@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Uuid, UniqueConstraint
+from sqlalchemy import ForeignKey, Uuid,func, UniqueConstraint,String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -22,15 +22,16 @@ class SubjectTeacher(Base):
     __tablename__ = "subject_teachers"
     __table_args__ = (
         UniqueConstraint(
-            "teacher_id", "subject_id", "section_id",
-            name="uq_subject_teacher_section"
+            "teacher_id", "subject_id", "section_id","component",
+            name="uq_subject_teacher_section_component"
         ),
     )
 
-    subject_teacher_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    subject_teacher_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True,server_default=func.gen_random_uuid())
     teacher_id: Mapped[UUID] = mapped_column(ForeignKey("teachers.teacher_id"), nullable=False)
     subject_id: Mapped[UUID] = mapped_column(ForeignKey("subjects.subject_id"), nullable=False)
     section_id: Mapped[UUID] = mapped_column(ForeignKey("sections.section_id"), nullable=False)
+    component : Mapped[str] = mapped_column(String(50),nullable=False)
 
     teacher: Mapped["Teacher"] = relationship(back_populates="subject_teachers")
     subject: Mapped["Subject"] = relationship(back_populates="subject_teachers")

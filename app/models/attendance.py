@@ -4,7 +4,7 @@ from datetime import date
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import Boolean, Date, ForeignKey, Uuid
+from sqlalchemy import Boolean, Date, ForeignKey, Uuid , func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class Attendance(Base):
     __tablename__ = "attendance"
 
-    attendance_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    attendance_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True,server_default=func.gen_random_uuid())
     student_id: Mapped[UUID] = mapped_column(ForeignKey("students.student_id"), nullable=False)
     subject_teacher_id: Mapped[UUID] = mapped_column(
         ForeignKey("subject_teachers.subject_teacher_id"), nullable=False

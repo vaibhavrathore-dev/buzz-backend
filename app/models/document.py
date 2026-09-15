@@ -17,11 +17,10 @@ if TYPE_CHECKING:
 class Document(Base):
     __tablename__ = "documents"
 
-    document_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    document_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True,server_default=func.gen_random_uuid())
     subject_teacher_id: Mapped[UUID] = mapped_column(
         ForeignKey("subject_teachers.subject_teacher_id"), nullable=False
     )
-    teacher_id: Mapped[UUID] = mapped_column(ForeignKey("teachers.teacher_id"), nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     file_name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -34,4 +33,4 @@ class Document(Base):
     )
 
     subject_teacher: Mapped["SubjectTeacher"] = relationship(back_populates="documents")
-    teacher: Mapped["Teacher"] = relationship(back_populates="documents")
+

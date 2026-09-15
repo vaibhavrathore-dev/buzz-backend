@@ -9,7 +9,7 @@ def verify_student(
             status_code=409,
             detail="Campus onboarding already completed"
         )
-    return current_user
+    return current_user 
 
     
     

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class Notification(Base):
     __tablename__ = "notifications"
 
-    notification_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    notification_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True,server_default=func.gen_random_uuid())
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.user_id"), nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
